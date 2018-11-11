@@ -1,0 +1,32 @@
+# t3.dat: traffic file for a2sdn
+#     a2sdn cont 3
+#     a2sdn sw1  t3.dat  null sw2  100-110
+#     a2sdn sw2  t3.dat  sw1  sw3  500-550
+#     a2sdn sw3  t3.dat  sw2  null 200-220
+
+sw1  100  101
+sw1  100  102
+sw1  100  700
+#
+sw2  500  501
+sw2  500  502
+sw2  500  700
+#
+sw3  200  201
+sw3  200  202
+sw3  200  700
+#
+sw2  510  100
+sw2  510  101
+sw2  510  210
+sw2  510  211
+#
+sw3  210  105
+sw3  210  106
+sw3  211  210
+sw3  211  211
+#
+sw1  100  205
+sw1  100  206
+sw1  100  505
+sw1  100  506

@@ -1,0 +1,9 @@
+# Traffic file for a2sdn
+#   a2sdn cont 1
+#   a2sdn sw1 t1.dat null null 100-110
+
+sw1  100  102
+sw2  200  300
+sw3  200  300
+sw1  100  103
+sw1  100  104
