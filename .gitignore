@@ -1,6 +1,9 @@
 *.tar
+*.tar.gz
 *.o
+*.dat
 !*.cc
 !*.h
 !*.md
 !.editorconfig
+!.vscode/
