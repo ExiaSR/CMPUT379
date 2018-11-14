@@ -2,6 +2,7 @@
 *.tar.gz
 *.o
 *.dat
+README.pdf
 !*.cc
 !*.h
 !*.md
