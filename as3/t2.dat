@@ -1,0 +1,15 @@
+# t2.dat: traffic file for a2sdn
+#     a3sdn cont 2
+#     a3sdn sw1 t2.dat null sw2 100-110
+#     a3sdn sw2 t2.dat sw1 null 200-210
+
+sw1  100  102
+sw1  delay 5000
+sw1  100  200
+sw1  100  300
+sw2  200  300
+sw3  200  300
+sw2  200  100
+sw2  200  100
+sw1  100  103
+sw1  100  104
