@@ -4,7 +4,7 @@
 .PHONY: clean all a4tasks
 
 CXX ?= g++-5
-CXXFLAGS = -std=c++17 -pthread -Wall -fdiagnostics-color=always -D'_LIBCPP_EXTERN_TEMPLATE(...)='
+CXXFLAGS = -std=c++11 -pthread -Wall -fdiagnostics-color=always -D'_LIBCPP_EXTERN_TEMPLATE(...)='
 
 A4_SRC = main.cc
 A4_PROG = a4tasks

@@ -52,8 +52,10 @@ void monitor_runner(int);
 void print_running_task(std::string, std::thread::id, int, int);
 void print_resources_info();
 void print_tasks_info();
-void debug_release_resource(std::string, std::string);
-void debug_acquire_resource(std::string, std::string);
+void debug_before_release_resource(std::string, std::string);
+void debug_after_release_resource(std::string, std::string);
+void debug_before_acquire_resource(std::string, std::string);
+void debug_after_acquire_resource(std::string, std::string);
 void debug_fail_acquire_resouce(std::string, std::string);
 std::tuple<std::map<std::string, Resource>, std::map<std::string, Task>> parse_input_file(std::string);
 

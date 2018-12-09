@@ -89,6 +89,13 @@ void task_runner(string task_name, int num_iteration) {
   for (int run = 0; run < num_iteration; run++) {
     auto start_acquire_resources = chrono::high_resolution_clock::now();
 
+    // when task does not require resource, just skip
+    if (current_task.required_resources.empty()) {
+      print_running_task(current_task.name, current_task.tid, run+1, 0);
+      tasks_map[task_name].cnt += 1;
+      continue;
+    }
+
     // update state to WAIT
     task_mutex.lock();
     tasks_map[task_name].state = STATE_WAIT;
@@ -109,8 +116,9 @@ void task_runner(string task_name, int num_iteration) {
           this_thread::sleep_for(chrono::milliseconds(100));
         } else {
           for (auto r : current_task.required_resources) {
-            debug_acquire_resource(current_task.name, r.name);
-            resources_map[r.name].held = r.units; // all resoucres are avalibale, hold resouce.
+            debug_before_acquire_resource(current_task.name, r.name);
+            resources_map[r.name].held += r.units; // all resoucres are avalibale, hold resouce.
+            debug_after_acquire_resource(current_task.name, r.name);
           }
           resource_mutex.unlock();
           break;
@@ -130,10 +138,12 @@ void task_runner(string task_name, int num_iteration) {
     // simulate busy time
     this_thread::sleep_for(chrono::milliseconds(current_task.busy_time));
 
+    // release resource
     for (auto r : current_task.required_resources) {
       lock_guard<mutex> lock(resource_mutex);
+      debug_before_release_resource(current_task.name, r.name);
       resources_map[r.name].held -= r.units;
-      debug_release_resource(current_task.name, r.name);
+      debug_after_release_resource(current_task.name, r.name);
     }
 
     // update state to IDLE
@@ -154,7 +164,9 @@ void task_runner(string task_name, int num_iteration) {
 
 void monitor_runner(int interval) {
   while (!worker_terminal) {
-    lock_guard<mutex> lock(task_mutex); // make sure no task state change when printing
+    // TODO lock_guard is casuing weird behavior on gcc 5.4
+    // lock_guard<mutex> lock(task_mutex); // make sure no task state change when printing
+    task_mutex.lock();
     stringstream wait_buf;
     stringstream run_buf;
     stringstream idle_buf;
@@ -175,6 +187,7 @@ void monitor_runner(int interval) {
           break;
       }
     }
+    task_mutex.unlock();
     cout << "monitor:" << "\n" << wait_buf.str() << "\n" << run_buf.str() << "\n" << idle_buf.str() << endl;
     this_thread::sleep_for(chrono::milliseconds(interval));
   }
@@ -244,11 +257,14 @@ tuple<map<string, Resource>, map<string, Task>> parse_input_file(string input_fi
       } else if (placeholder[0] == "task") {
         Task task = { placeholder[1], stoi(placeholder[2]), stoi(placeholder[3]) };
         vector<Resource> task_required_resource;
-        for (int i = 4; i < placeholder.size(); i++) {
-          auto tokens = split(placeholder[i], ':');
-          task.required_resources.push_back({ tokens[0], stoi(tokens[1]), 0 }); // TODO
-          task.state = STATE_WAIT;
+        if (placeholder.size() > 4) {
+          // only parse requires resources for task when there is any
+          for (int i = 4; i < placeholder.size(); i++) {
+            auto tokens = split(placeholder[i], ':');
+            task.required_resources.push_back({ tokens[0], stoi(tokens[1]), 0 }); // TODO
+          }
         }
+        task.state = STATE_IDLE; // STATE_WAIT;
         t_map.insert({ task.name, task });
       }
     }
@@ -257,7 +273,14 @@ tuple<map<string, Resource>, map<string, Task>> parse_input_file(string input_fi
   return make_tuple(r_map, t_map);
 }
 
-void debug_release_resource(string task, string resource) {
+void debug_before_release_resource(string task, string resource) {
+  if (DEBUG) {
+    cout << task << " released " << resource << endl;
+    cout << resource << ": maxAvaliable: " << resources_map[resource].units << " held: " << resources_map[resource].held << endl;
+  }
+}
+
+void debug_after_release_resource(string task, string resource) {
   if (DEBUG) {
     cout << task << " released " << resource << endl;
     cout << resource << ": maxAvaliable: " << resources_map[resource].units << " held: " << resources_map[resource].held << endl;
@@ -265,9 +288,16 @@ void debug_release_resource(string task, string resource) {
   }
 }
 
-void debug_acquire_resource(string task, string resource) {
+void debug_before_acquire_resource(string task, string resource) {
   if (DEBUG) {
-    cout << task << " acquiring " << resource << endl;
+    cout << task << " before acquiring " << resource << endl;
+    cout << resource << ": maxAvaliable: " << resources_map[resource].units << " held: " << resources_map[resource].held << endl;
+  }
+}
+
+void debug_after_acquire_resource(string task, string resource) {
+  if (DEBUG) {
+    cout << task << " after acquiring " << resource << endl;
     cout << resource << ": maxAvaliable: " << resources_map[resource].units << " held: " << resources_map[resource].held << endl;
     cout << endl;
   }
