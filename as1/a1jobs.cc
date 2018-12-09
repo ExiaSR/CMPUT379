@@ -1,7 +1,9 @@
 /*
- * Copyright (C) 2018 Michael (Zichun) Lin
- * All rights reserved
-*/
+ * Copyright (C) 2018 Every-fucking-one, except the Author
+ *
+ * This source code is licensed under the GLWTS Public License found in the
+ * LICENSE file in the root directory of this source tree.
+ */
 
 #include <iostream>
 #include <iomanip>
